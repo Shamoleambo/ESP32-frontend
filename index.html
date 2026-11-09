@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Estação meteorológica</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="script.js" defer></script>
+</head>
+
+<body>
+    <main class="painel">
+        <header>
+            <p class="subtitulo">Monitoramento ambiental</p>
+            <h1>Estação meteorológica</h1>
+            <p id="estacao">Aguardando identificação da estação.</p>
+        </header>
+
+        <p id="status" class="status" role="status" data-estado="aguardando">
+            Carregando dados…
+        </p>
+
+        <section class="indicadores" aria-label="Últimas medições">
+            <article class="card">
+                <h2>Temperatura</h2>
+                <p class="medicao">
+                    <span id="temperatura">—</span>
+                    <span class="unidade">°C</span>
+                </p>
+            </article>
+
+            <article class="card">
+                <h2>Umidade relativa</h2>
+                <p class="medicao">
+                    <span id="umidade">—</span>
+                    <span class="unidade">%</span>
+                </p>
+            </article>
+        </section>
+
+        <footer>
+            <p>Recebida pelo backend em:
+                <time id="horario">—</time>
+            </p>
+            <p>Consulta automática a cada 2 segundos.</p>
+        </footer>
+    </main>
+</body>
+
+</html>
