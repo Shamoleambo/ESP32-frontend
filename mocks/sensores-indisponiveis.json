@@ -8,7 +8,8 @@
         "umidade_pct": null,
         "pressao_hpa": 925.4,
         "mq135_adc": null,
-        "luminosidade_adc": null
+        "luminosidade_adc": null,
+        "luminosidade_digital": null
     },
     "estado_sensores": {
         "dht22": "erro_leitura",
