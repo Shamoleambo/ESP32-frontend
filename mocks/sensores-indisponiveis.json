@@ -1,18 +1,20 @@
 {
+    "versao": 2,
     "id": 853,
     "estacao_id": "estacao-01",
-    "recebido_em": "2026-11-10T15:30:00+00:00",
+    "sequencia": 125,
     "leituras": {
-        "temperatura_c": 24.6,
-        "umidade_pct": 61.2,
-        "pressao_hpa": 1012.8,
+        "temperatura_c": null,
+        "umidade_pct": null,
+        "pressao_hpa": 925.4,
         "mq135_adc": null,
-        "luminosidade_adc": 2450
+        "luminosidade_adc": null
     },
     "estado_sensores": {
-        "dht22": "ok",
+        "dht22": "erro_leitura",
         "bmp280": "ok",
-        "mq135": "aquecendo",
-        "ldr": "ok"
-    }
+        "mq135": "nao_configurado",
+        "ldr": "nao_configurado"
+    },
+    "recebido_em": "2026-11-10T15:30:00+00:00"
 }

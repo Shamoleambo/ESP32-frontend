@@ -1,5 +1,6 @@
 {
     "versao": 2,
+    "id": 853,
     "estacao_id": "estacao-01",
     "sequencia": 125,
     "leituras": {
@@ -10,9 +11,10 @@
         "luminosidade_adc": 2450
     },
     "estado_sensores": {
-        "dht22": "ok",
+        "dht22": "erro_leitura",
         "bmp280": "ok",
-        "mq135": "ok",
-        "ldr": "ok"
-    }
+        "mq135": "nao_configurado",
+        "ldr": "nao_configurado"
+    },
+    "recebido_em": "2026-11-10T15:30:00+00:00"
 }

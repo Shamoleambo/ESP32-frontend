@@ -1,18 +1,20 @@
 {
     "versao": 2,
+    "id": 853,
     "estacao_id": "estacao-01",
-    "sequencia": 1,
+    "sequencia": 125,
     "leituras": {
         "temperatura_c": 24.6,
         "umidade_pct": 61.2,
-        "pressao_hpa": null,
+        "pressao_hpa": 925.4,
         "mq135_adc": null,
         "luminosidade_adc": null
     },
     "estado_sensores": {
-        "dht22": "ok",
-        "bmp280": "nao_configurado",
+        "dht22": "erro_leitura",
+        "bmp280": "ok",
         "mq135": "nao_configurado",
         "ldr": "nao_configurado"
-    }
+    },
+    "recebido_em": "2026-11-10T15:30:00+00:00"
 }
