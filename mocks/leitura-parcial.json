@@ -1,0 +1,18 @@
+{
+    "versao": 2,
+    "estacao_id": "estacao-01",
+    "sequencia": 1,
+    "leituras": {
+        "temperatura_c": 24.6,
+        "umidade_pct": 61.2,
+        "pressao_hpa": null,
+        "mq135_adc": null,
+        "luminosidade_adc": null
+    },
+    "estado_sensores": {
+        "dht22": "ok",
+        "bmp280": "nao_configurado",
+        "mq135": "nao_configurado",
+        "ldr": "nao_configurado"
+    }
+}
