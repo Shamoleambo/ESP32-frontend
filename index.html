@@ -1,51 +1,75 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Estação meteorológica</title>
-    <link rel="stylesheet" href="style.css">
-    <script src="script.js" defer></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Estação Meteorológica</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
-    <main class="painel">
-        <header>
-            <p class="subtitulo">Monitoramento ambiental</p>
-            <h1>Estação meteorológica</h1>
-            <p id="estacao">Aguardando identificação da estação.</p>
-        </header>
+  <div class="site">
+    <header>
+      <div class="cabecalho">Estação<br>Meteorológica</div>
+      <nav aria-label="Navegação principal">
+        <a href="index.html" class="button active">Painel</a>
+      </nav>
+    </header>
 
-        <p id="status" class="status" role="status" data-estado="aguardando">
-            Carregando dados…
-        </p>
+    <main>
+      <section class="left">
+        <div class="map-wrap view" id="map-section">
+          <div id="map" aria-label="Mapa da localização da estação"></div>
+          <div class="map-placeholder" id="map-fallback">
+            <div><strong>Localização do ESP32</strong><br>O mapa será exibido aqui quando houver conexão.</div>
+          </div>
+        </div>
 
-        <section class="indicadores" aria-label="Últimas medições">
-            <article class="card">
-                <h2>Temperatura</h2>
-                <p class="medicao">
-                    <span id="temperatura">—</span>
-                    <span class="unidade">°C</span>
-                </p>
-            </article>
+        <section class="recent-locations">
+          <h2 class="section-title">Locais recentes</h2>
+          <div id="recent-locations" class="location-empty">Nenhum local registrado.</div>
+        </section>
+      </section>
 
-            <article class="card">
-                <h2>Umidade relativa</h2>
-                <p class="medicao">
-                    <span id="umidade">—</span>
-                    <span class="unidade">%</span>
-                </p>
-            </article>
+      <section class="right">
+        <section class="panel" aria-label="Condições atuais">
+          <div class="current">
+            <div class="temperature" id="temperatura">— °C</div>
+            <div class="current-divider"></div>
+            <div class="location-name" id="local-nome">Local não definido</div>
+          </div>
+
+          <div class="metrics">
+            <div class="metric"><span class="metric-label">Umidade</span><span class="metric-value" id="humidade">—%</span></div>
+            <div class="metric"><span class="metric-label">Pressão</span><span class="metric-value" id="pressao">— hPa</span></div>
+            <div class="metric"><span class="metric-label">Luminosidade</span><span class="metric-value" id="luz">—</span></div>
+            <div class="metric"><span class="metric-label">Qualidade do ar</span><span class="metric-value" id="qualidade-ar">—</span></div>
+          </div>
+
+          <div class="status-row">
+            <span class="status" id="connection-status">Aguardando conexão</span>
+            <span id="signal-status">Sem sinal</span>
+          </div>
         </section>
 
-        <footer>
-            <p>Recebida pelo backend em:
-                <time id="horario">—</time>
-            </p>
-            <p>Consulta automática a cada 2 segundos.</p>
-        </footer>
-    </main>
-</body>
 
+        <section class="panel data-panel">
+          <h2>Dados recentes</h2>
+          <div id="recent-data">
+            <div class="empty-data">Aguardando as primeiras medições da estação.</div>
+          </div>
+        </section>
+      </section>
+    </main>
+
+    <div class="footer">Estação Meteorológica · Painel de monitoramento</div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="api.js"></script>
+  <script src="script.js"></script>
+</body>
 </html>
