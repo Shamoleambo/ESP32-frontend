@@ -1,5 +1,6 @@
 // Endereço do backend local.
-const API_BASE = "http://127.0.0.1:5000";
+// const API_BASE = "http://127.0.0.1:5000";
+const API_BASE = "https://estacao-meteorologica-backend-k3q0.onrender.com";
 
 const INTERVALO_MS = 2000;
 const LIMITE_DADOS_ANTIGOS_MS = 15000;
