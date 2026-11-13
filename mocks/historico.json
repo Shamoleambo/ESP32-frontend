@@ -1,0 +1,22 @@
+[
+  {
+    "recebido_em": "2026-11-10T08:00:00+00:00",
+    "leituras": { "temperatura_c": 18.5, "umidade_pct": 75.0 }
+  },
+  {
+    "recebido_em": "2026-11-10T10:00:00+00:00",
+    "leituras": { "temperatura_c": 21.0, "umidade_pct": 68.0 }
+  },
+  {
+    "recebido_em": "2026-11-10T12:00:00+00:00",
+    "leituras": { "temperatura_c": 24.5, "umidade_pct": 60.0 }
+  },
+  {
+    "recebido_em": "2026-11-10T14:00:00+00:00",
+    "leituras": { "temperatura_c": 26.2, "umidade_pct": 55.0 }
+  },
+  {
+    "recebido_em": "2026-11-10T15:30:00+00:00",
+    "leituras": { "temperatura_c": 24.6, "umidade_pct": 61.2 }
+  }
+]
