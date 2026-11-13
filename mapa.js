@@ -76,6 +76,11 @@ async function carregarMapa() {
     aviso.style.display = "none";
 
     requestAnimationFrame(() => mapa.invalidateSize());
+    window.dispatchEvent(
+      new CustomEvent("mapa:pronto", {
+        detail: { mapa, estacao },
+      }),
+    );
   } catch (erro) {
     console.error("Falha ao carregar o mapa:", erro);
 

@@ -28,6 +28,15 @@
           <div class="map-placeholder" id="map-fallback">
             <div><strong>Localização do ESP32</strong><br>O mapa será exibido aqui quando houver conexão.</div>
           </div>
+          <div class="vetor-controles">
+            <button id="mostrar-vetor" class="button" type="button" disabled>
+              Mostrar vetor até a estação
+            </button>
+
+            <p id="resultado-vetor" role="status" aria-live="polite">
+              Aguarde o carregamento do mapa.
+            </p>
+          </div>
         </div>
 
         <section class="recent-locations">
@@ -78,6 +87,7 @@
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="script.js"></script>
+  <script src="vetor.js"></script>
   <script src="mapa.js"></script>
 </body>
 
