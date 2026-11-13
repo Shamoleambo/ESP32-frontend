@@ -1,131 +1,195 @@
-(function () {
-  const $ = (sel) => document.querySelector(sel);
-  
+// Endereço do backend local.
+const API_BASE = "http://127.0.0.1:5000";
 
-  const formatoNumero = new Intl.NumberFormat("pt-BR", {
-    minimumFractionDigits: 1,
-    maximumFractionDigits: 1,
-  });
+const INTERVALO_MS = 2000;
+const LIMITE_DADOS_ANTIGOS_MS = 15000;
 
-  let ultimaDataRecebida = null;
-  const LIMITE_LEITURA_ANTIGA_MS = 15000; 
+const formatoNumero = new Intl.NumberFormat("pt-BR", {
+  maximumFractionDigits: 1,
+});
 
-  function renderAtual(l) {
-    if (!l) return;
-    
-    $("#temperatura").textContent = l.temperatura_c === null ? "— °C" : `${formatoNumero.format(l.temperatura_c)} °C`;
-    $("#humidade").textContent    = l.umidade_pct === null ? "—%" : `${formatoNumero.format(l.umidade_pct)}%`;
-    $("#pressao").textContent     = l.pressao_hpa === null ? "— hPa" : `${formatoNumero.format(l.pressao_hpa)} hPa`;
-    $("#luz").textContent         = l.luz ?? "—";
-    $("#qualidade-ar").textContent = l.qualidade_ar ?? "—";
-    $("#local-nome").textContent  = `Estação ${l.estacao_id}`;
+const estadosTexto = {
+  erro_leitura: "falha na leitura",
+  nao_configurado: "não configurado",
+  aquecendo: "aquecendo",
+};
+
+const recentes = [];
+let ultimaChave = null;
+
+function escrever(id, valor) {
+  document.getElementById(id).textContent = valor;
+}
+
+function mostrarStatus(titulo, mensagem, online = false) {
+  const elemento = document.getElementById("connection-status");
+
+  elemento.textContent = titulo;
+  elemento.classList.toggle("online", online);
+
+  escrever("signal-status", mensagem);
+}
+
+function prepararLeitura(dados) {
+  if (
+    !dados ||
+    typeof dados.estacao_id !== "string" ||
+    !dados.leituras ||
+    !dados.estado_sensores ||
+    typeof dados.recebido_em !== "string" ||
+    Number.isNaN(Date.parse(dados.recebido_em))
+  ) {
+    throw new Error("Formato de resposta inesperado.");
   }
 
+  const leituras = dados.leituras;
+  const estados = dados.estado_sensores;
 
-  function mostrarStatus(erro) {
-    const statusEl = $("#connection-status");
-    const sinalEl  = $("#signal-status");
+  function formatar(campo, sensor, unidade) {
+    const valor = leituras[campo];
 
-    if (!erro && ultimaDataRecebida) {
-      const idade = Date.now() - ultimaDataRecebida.getTime();
-      if (idade > LIMITE_LEITURA_ANTIGA_MS) {
-        statusEl.textContent = "Aviso";
-        statusEl.classList.remove("online");
-        sinalEl.textContent = "Dados antigos: última leitura há mais de 15s.";
-        return;
-      }
-      statusEl.textContent = "Online";
-      statusEl.classList.add("online");
+    if (estados[sensor] !== "ok" || !Number.isFinite(valor)) {
+      return "—";
     }
 
-    if (erro) {
-      if (erro.message === "SEM_DADOS_404") {
-        statusEl.textContent = "Aguardando";
-        statusEl.classList.remove("online");
-        sinalEl.textContent = "Ainda não existem leituras armazenadas.";
-      } else {
-        statusEl.textContent = "Offline";
-        statusEl.classList.remove("online");
-        sinalEl.textContent = "Não foi possível consultar o backend. Tentando novamente...";
-      }
-    }
+    return `${formatoNumero.format(valor)}${unidade}`;
   }
 
+  let luz = "—";
 
-  function renderStatusSensores(l) {
-    const sinalEl = $("#signal-status");
-    if (!l) return;
-    
-    const es = l.estado_sensores || {};
-    const fora = Object.entries(es).filter(([, v]) => v !== "ok").map(([k, v]) => `${k}: ${API.SENSOR_LABEL[v] || v}`);
-    
-
-    if (fora.length === 0) {
-      sinalEl.textContent = "Todos os sensores ok";
-    } else {
-      sinalEl.textContent = `Atenção — ${fora.join(", ")}`;
+  if (estados.ldr === "ok") {
+    if (leituras.luminosidade_digital === 0) {
+      luz = "Acima do limiar";
+    } else if (leituras.luminosidade_digital === 1) {
+      luz = "Abaixo do limiar";
     }
   }
 
+  return {
+    temperatura: formatar("temperatura_c", "dht22", " °C"),
+    umidade: formatar("umidade_pct", "dht22", " %"),
+    pressao: formatar("pressao_hpa", "bmp280", " hPa"),
+    luz,
+    ar: formatar("mq135_adc", "mq135", " (ADC bruto)"),
+  };
+}
 
-  const recentes = [];
-  function renderRecentes() {
-    const box = $("#recent-data");
-    if (!box) return;
-    
-    if (!recentes.length) {
-      box.innerHTML = `<div class="empty-data">Aguardando as primeiras medições da estação.</div>`;
+function renderizar(dados) {
+  const leitura = prepararLeitura(dados);
+
+  escrever("temperatura", leitura.temperatura);
+
+  // O HTML do PR usa "humidade" como identificador.
+  escrever("humidade", leitura.umidade);
+
+  escrever("pressao", leitura.pressao);
+  escrever("luz", leitura.luz);
+  escrever("qualidade-ar", leitura.ar);
+  escrever("local-nome", `Estação ${dados.estacao_id}`);
+
+  const idade = Date.now() - Date.parse(dados.recebido_em);
+  const dadosAntigos = idade > LIMITE_DADOS_ANTIGOS_MS;
+
+  const falhas = Object.entries(dados.estado_sensores)
+    .filter(([, estado]) => estado !== "ok")
+    .map(([sensor, estado]) => `${sensor}: ${estadosTexto[estado] || estado}`);
+
+  const mensagemSensores = falhas.length
+    ? falhas.join("; ")
+    : "Todos os sensores com leitura disponível.";
+
+  mostrarStatus(
+    dadosAntigos ? "Dados antigos" : "Online",
+    dadosAntigos
+      ? `Última leitura há mais de 15 segundos. ${mensagemSensores}`
+      : mensagemSensores,
+    !dadosAntigos,
+  );
+
+  // Evita repetir a mesma leitura a cada consulta.
+  const chave = JSON.stringify([dados.estacao_id, dados.id, dados.recebido_em]);
+
+  if (chave !== ultimaChave) {
+    ultimaChave = chave;
+
+    recentes.unshift({
+      hora: new Date(dados.recebido_em).toLocaleTimeString("pt-BR"),
+      ...leitura,
+    });
+
+    if (recentes.length > 10) {
+      recentes.pop();
+    }
+
+    renderizarRecentes();
+  }
+}
+
+function renderizarRecentes() {
+  const caixa = document.getElementById("recent-data");
+
+  caixa.replaceChildren();
+
+  const linhas = [
+    ["Hora", "Temp.", "Umid.", "Pressão", "Luz", "Ar"],
+    ...recentes.map((leitura) => [
+      leitura.hora,
+      leitura.temperatura,
+      leitura.umidade,
+      leitura.pressao,
+      leitura.luz,
+      leitura.ar,
+    ]),
+  ];
+
+  for (const valores of linhas) {
+    const linha = document.createElement("div");
+    linha.className = "data-row";
+
+    for (const valor of valores) {
+      const celula = document.createElement("span");
+      celula.textContent = valor;
+      linha.appendChild(celula);
+    }
+
+    caixa.appendChild(linha);
+  }
+}
+
+async function atualizar() {
+  const controlador = new AbortController();
+  const limite = setTimeout(() => controlador.abort(), 4000);
+
+  try {
+    const resposta = await fetch(`${API_BASE}/api/leituras/ultima`, {
+      cache: "no-store",
+      signal: controlador.signal,
+    });
+
+    if (resposta.status === 404) {
+      mostrarStatus("Aguardando", "Ainda não existem leituras armazenadas.");
       return;
     }
 
-    box.innerHTML = `
-      <div class="data-row" style="font-weight: 600; border-bottom: 2px solid rgba(124, 157, 255, .3); color: var(--accent);">
-        <span>Hora</span>
-        <span>Temp.</span>
-        <span>Umid.</span>
-        <span>Pressão</span>
-        <span>Luz</span>
-        <span>Ar</span>
-      </div>
-    ` + recentes.slice(0, 10).map((l) => {
-      const h = new Date(l.recebido_em).toLocaleTimeString("pt-BR", { hour: '2-digit', minute: '2-digit' });
-      return `
-        <div class="data-row">
-          <span class="data-label">${h}</span>
-          <span>${l.temperatura_c === null ? "—" : formatoNumero.format(l.temperatura_c) + "°C"}</span>
-          <span>${l.umidade_pct === null ? "—" : formatoNumero.format(l.umidade_pct) + "%"}</span>
-          <span>${l.pressao_hpa === null ? "—" : formatoNumero.format(l.pressao_hpa) + " hPa"}</span>
-          <span style="font-size: 12px;">${l.luz ?? "—"}</span>
-          <span style="font-size: 12px;">${l.qualidade_ar ?? "—"}</span>
-        </div>`;
-    }).join("");
+    if (!resposta.ok) {
+      throw new Error(`Resposta HTTP ${resposta.status}`);
+    }
+
+    const dados = await resposta.json();
+    renderizar(dados);
+  } catch (erro) {
+    console.error("Falha ao consultar o backend:", erro);
+
+    mostrarStatus(
+      "Offline",
+      "Falha na consulta. Valores anteriores, se houver, foram mantidos.",
+    );
+  } finally {
+    clearTimeout(limite);
+
+    // Aguarda a conclusão antes de agendar a próxima consulta.
+    setTimeout(atualizar, INTERVALO_MS);
   }
+}
 
-
-  window.addEventListener("leitura:recebida", (ev) => {
-    const l = ev.detail;
-    ultimaDataRecebida = new Date(l.recebido_em);
-    
-    renderAtual(l);
-    renderStatusSensores(l);
-    mostrarStatus(null); 
-    
-    recentes.unshift(l);
-    if (recentes.length > 50) recentes.pop();
-    renderRecentes();
-  });
-
-
-  window.addEventListener("leitura:erro", (ev) => {
-    const e = ev.detail;
-    mostrarStatus(e);
-
-  });
-
-  document.addEventListener("DOMContentLoaded", () => {
-    renderRecentes();
-    
-
-    API.iniciarPolling({ intervalo: 2000 });
-  });
-})();
+atualizar();
