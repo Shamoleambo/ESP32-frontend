@@ -24,15 +24,17 @@
     <main>
       <section class="left">
         <div class="map-wrap view" id="map-section">
-          <div id="map" aria-label="Mapa da localização da estação"></div>
+          <div id="map" aria-label="Mapa da localização da estação" hidden></div>
           <div class="map-placeholder" id="map-fallback">
             <div><strong>Localização do ESP32</strong><br>O mapa será exibido aqui quando houver conexão.</div>
           </div>
         </div>
 
         <section class="recent-locations">
-          <h2 class="section-title">Locais recentes</h2>
-          <div id="recent-locations" class="location-empty">Nenhum local registrado.</div>
+          <h2 class="section-title">Localização cadastrada</h2>
+          <div id="recent-locations" class="location-empty">
+            Aguardando coordenadas da estação.
+          </div>
         </section>
       </section>
 
@@ -76,6 +78,7 @@
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="script.js"></script>
+  <script src="mapa.js"></script>
 </body>
 
 </html>
